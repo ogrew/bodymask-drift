@@ -41,7 +41,13 @@ const IMAGE_OPTIONS = {
   "t5.jpg": "assets/t5.jpg",
 };
 
+const IMG_SOURCE_OPTIONS = {
+  "SAMPLE (assets)": "sample",
+  "UPLOAD (local jpeg)": "upload",
+};
+
 const PARAMS = {
+  imgSource: "sample",
   imgPath: IMAGE_OPTIONS["t1.jpg"],
 
   cellSize: 10,
@@ -67,4 +73,8 @@ const RUN_UI = {
   status: "LOADING_MODEL",
   detail: "",
   progress: "",
+};
+
+const UPLOAD_UI = {
+  file: "(none)",
 };

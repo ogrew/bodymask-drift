@@ -40,11 +40,41 @@ function initTweakpane() {
 
   btnStop.disabled = true;
 
-  // --- Params
-  paneParams.addBinding(PARAMS, "imgPath", {
-    label: "IMAGE",
+  // --- Params: 画像入力方法
+  bImgSource = paneParams.addBinding(PARAMS, "imgSource", {
+    label: "IMG_SOURCE",
+    options: {
+        SAMPLE: "sample",
+        UPLOAD: "upload",
+    },
+  });
+
+  // サンプル画像
+  bSampleImage = paneParams.addBinding(PARAMS, "imgPath", {
+    label: "SAMPLE_IMAGE",
     options: IMAGE_OPTIONS,
   });
+
+  // アップロード画像
+  bUploadImage = paneParams.addBinding(UPLOAD_UI, "file", {
+    label: "UPLOAD_IMAGE",
+    readonly: true,
+  });
+
+  btnChooseJpeg = paneParams.addButton({ title: "CHOOSE_JPEG..." });
+  btnChooseJpeg.on("click", () => {
+    const el = ensureUploadInput();
+    try { el.value = ""; } catch (_) {}
+    el.click();
+  });
+
+  // IMG_SOURCE が変わったら相互排他を更新
+  bImgSource.on("change", () => {
+    syncImageSourceUI();
+  });
+
+  // 初期表示
+  UPLOAD_UI.file = getUploadedLabel();  
 
   paneParams.addBinding(PARAMS, "cellSize", {
     label: "CELL_SIZE",
@@ -130,13 +160,10 @@ function setParamsLocked(locked) {
   if (btnPlay) btnPlay.disabled = !canPlay;
   if (btnStop) btnStop.disabled = !locked;
 
-  // 重要：disabled状態がUIに反映されないケースがあるので refresh を強制
-  try {
-    paneRun?.refresh?.();
-  } catch (_) {}
-  try {
-    paneParams?.refresh?.();
-  } catch (_) {}
+  // 念のため：ファイル選択ボタンもロック（paneParams.disabled が効かないケース対策）
+  if (btnPickUpload) btnPickUpload.disabled = locked;
+  try { paneRun?.refresh?.(); } catch (_) {}
+  try { paneParams?.refresh?.(); } catch (_) {}
 }
 
 /**
@@ -155,11 +182,22 @@ function onPlay() {
     onStop();
   }
 
-  // スナップショット作成
+  // スナップショット作成（PLAY中にパラメータは変えない前提）
   const cfg = snapshotParams(PARAMS);
 
+  // 乱数＆ノイズを固定（再現性）
   randomSeed(cfg.noiseSeed);
   noiseSeed(cfg.noiseSeed);
+
+  // どの画像を使うか確定
+  let imageUrl = cfg.imgPath;
+  if (cfg.imgSource === "upload") {
+    imageUrl = getUploadedUrl();
+    if (!imageUrl) {
+      setRunError("upload jpeg not selected");
+      return;
+    }
+  }
 
   // 実行状態を作る
   runToken += 1;
@@ -189,12 +227,12 @@ function onPlay() {
   // 表示をリセット（“p5 editorの▶︎”っぽく）
   trailG.clear();
 
-  setStatus("LOADING_IMAGE", cfg.imgPath, "");
+  setStatus("LOADING_IMAGE", imageUrl, "");
   refreshRunPane();
   loop();
 
   // 選択画像をロード
-  loadImageAsync(cfg.imgPath)
+  loadImageAsync(imageUrl)
     .then((loaded) => {
       if (!isRunAlive(run, runToken)) return;
 
@@ -259,6 +297,7 @@ function snapshotParams(p) {
   const noiseSeed = clampInt(Math.floor(Number(p.noiseSeed) || 1), 1, 100000);
 
   return {
+    imgSource: String(p.imgSource === "upload" ? "upload" : "sample"),
     imgPath: String(p.imgPath),
     cellSize,
     moveFrames,
@@ -366,4 +405,61 @@ function ensurePaneContainers() {
     run: makeChild("tp-run"),
     params: makeChild("tp-params"),
   };
+}
+
+let uploadInputEl = null;
+let btnPickUpload = null;
+
+function ensureUploadInput() {
+  if (uploadInputEl) return uploadInputEl;
+
+  const el = document.createElement("input");
+  el.type = "file";
+  el.accept = ".jpg,.jpeg,image/jpeg";
+  el.style.display = "none";
+  document.body.appendChild(el);
+
+  el.addEventListener("change", () => {
+    const file = el.files && el.files[0] ? el.files[0] : null;
+    if (!file) return;
+
+    const r = setUploadedFile(file);
+    if (!r.ok) {
+      // 失敗：選択をクリアしてメッセージだけ残す
+      try { el.value = ""; } catch (_) {}
+      UPLOAD_UI.file = `ERROR: ${r.message}`;
+      paneParams?.refresh?.();
+      return;
+    }
+
+    // 成功：ラベル更新＋sourceをuploadへ寄せる（任意だが自然）
+    UPLOAD_UI.file = getUploadedLabel();
+    PARAMS.imgSource = "upload";
+
+    paneParams?.refresh?.();
+  });
+
+  uploadInputEl = el;
+  return uploadInputEl;
+}
+
+/**
+ * IMG_SOURCE に応じて SAMPLE/UPLOAD のUIを相互排他で有効/無効にする
+ * - SAMPLE: SAMPLE_IMAGE 有効 / UPLOAD_IMAGE と CHOOSE_JPEG 無効
+ * - UPLOAD: UPLOAD_IMAGE と CHOOSE_JPEG 有効 / SAMPLE_IMAGE 無効
+ */
+function syncImageSourceUI() {
+  const useSample = PARAMS.imgSource === "sample"; // ←あなたのenumに合わせてください
+
+  // SAMPLE_IMAGE
+  if (bSampleImage) bSampleImage.disabled = !useSample;
+
+  // UPLOAD_IMAGE（readonly表示） + CHOOSEボタン
+  if (bUploadImage) bUploadImage.disabled = useSample;
+  if (btnChooseJpeg) btnChooseJpeg.disabled = useSample;
+
+  // 念のため反映
+  try {
+    paneParams?.refresh?.();
+  } catch (_) {}
 }
