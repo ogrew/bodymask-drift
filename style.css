@@ -294,11 +294,47 @@ body {
   gap: 10px;
 }
 
-.ui-status {
+.ui-status-tab {
   border: 1px solid rgba(31, 27, 23, 0.12);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
   background: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+}
+
+.ui-status-tab summary {
+  list-style: none;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ui-status-tab summary::-webkit-details-marker {
+  display: none;
+}
+
+.ui-status-tab summary::after {
+  content: "Show";
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-1);
+  background: rgba(31, 27, 23, 0.08);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.ui-status-tab[open] summary::after {
+  content: "Hide";
+}
+
+.ui-status {
+  border-top: 1px solid rgba(31, 27, 23, 0.12);
+  padding: 10px 12px;
 }
 
 .ui-status-row {

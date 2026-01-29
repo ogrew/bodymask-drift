@@ -19,6 +19,7 @@ function loadImageAsync(path) {
  * 画像に合わせて canvas / offscreen を作り直す
  */
 function setupCanvasesForImage(newImg) {
+  baseImgOriginal = newImg;
   const fitted = fitImageToWindow(newImg);
   resizeCanvas(fitted.width, fitted.height);
   pixelDensity(1);

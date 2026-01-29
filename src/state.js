@@ -3,6 +3,7 @@
 // ============================================================
 
 let img; // 現在表示しているベース画像
+let baseImgOriginal = null; // 元の解像度の画像（リサイズ用）
 let srcG; // セグメンテーション入力用（CanvasImageSource）
 let trailG; // 軌跡レイヤー
 

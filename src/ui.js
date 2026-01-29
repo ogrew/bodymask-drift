@@ -6,6 +6,7 @@ let layoutReady = false;
 let externalUiLocked = false;
 let uploadInputBound = false;
 let sampleManifest = [];
+let didSelectInitialSample = false;
 
 /**
  * Tweakpaneを初期化（Paramsペインのみ）
@@ -105,6 +106,12 @@ function initTweakpane() {
     label: "Noise Seed",
     step: 1,
   });
+
+  const resetButton = paneParams.addButton({ title: "RESET PARAMS" });
+  resetButton.on("click", () => resetParamsToDefaults());
+
+  const saveButton = paneParams.addButton({ title: "SAVE PNG" });
+  saveButton.on("click", () => saveCurrentCanvas());
 
   syncImageSourceUI();
   updateUploadLabel();
@@ -328,6 +335,46 @@ function setRunError(message) {
   redraw();
 }
 
+function resetParamsToDefaults() {
+  Object.keys(PARAM_DEFAULTS).forEach((key) => {
+    PARAMS[key] = PARAM_DEFAULTS[key];
+  });
+  syncImageSourceUI();
+  updateUploadLabel();
+  const sampleSelect = document.getElementById("sampleSelect");
+  if (sampleSelect) {
+    syncSampleSelectValue(sampleSelect, sampleManifest);
+  }
+  paneParams?.refresh?.();
+}
+
+function saveCurrentCanvas() {
+  const unixTime = Math.floor(Date.now() / 1000);
+  const base = getCurrentImageBaseName();
+  const filename = `${base}-DM-${unixTime}`;
+  saveCanvas(filename, "png");
+}
+
+function getCurrentImageBaseName() {
+  if (PARAMS.imgSource === "upload" && UPLOAD_STATE?.name) {
+    return stripExtension(UPLOAD_STATE.name);
+  }
+  if (PARAMS.imgPath) {
+    const parts = PARAMS.imgPath.split("/");
+    const name = parts[parts.length - 1] || PARAMS.imgPath;
+    return stripExtension(name);
+  }
+  return "DriftMask";
+}
+
+function stripExtension(name) {
+  const dotIndex = name.lastIndexOf(".");
+  if (dotIndex > 0) {
+    return name.slice(0, dotIndex);
+  }
+  return name;
+}
+
 async function fetchSampleManifest() {
   try {
     const response = await fetch(SAMPLE_MANIFEST_URL, { cache: "no-store" });
@@ -365,6 +412,14 @@ function applySampleManifest(samples) {
     return;
   }
 
+  if (!didSelectInitialSample && PARAMS.imgSource === "sample") {
+    const pick = sampleManifest[Math.floor(Math.random() * sampleManifest.length)];
+    if (pick?.file) {
+      PARAMS.imgPath = pick.file;
+    }
+    didSelectInitialSample = true;
+  }
+
   sampleSelect.disabled = false;
   populateSampleSelect(sampleSelect, sampleManifest);
 
@@ -378,6 +433,15 @@ function applySampleManifest(samples) {
   syncSampleSelectValue(sampleSelect, sampleManifest);
   paneParams?.refresh?.();
   updateImageControlsUI();
+
+  if (PARAMS.imgSource === "sample" && PARAMS.imgPath) {
+    loadImageAsync(PARAMS.imgPath)
+      .then((loaded) => {
+        img = setupCanvasesForImage(loaded);
+        redraw();
+      })
+      .catch(() => {});
+  }
 }
 
 function initLayoutUI() {

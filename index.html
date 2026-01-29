@@ -69,19 +69,24 @@
           <button id="playButton" type="button">Run</button>
           <button id="stopButton" type="button">Stop</button>
         </div>
-        <div class="ui-block ui-status">
-          <div class="ui-status-row">
-            <div class="ui-label">Status</div>
-            <div id="statusValue">LOADING_MODEL</div>
-          </div>
-          <div class="ui-status-row">
-            <div class="ui-label">Detail</div>
-            <div id="detailValue"></div>
-          </div>
-          <div class="ui-status-row">
-            <div class="ui-label">Progress</div>
-            <div id="progressValue"></div>
-          </div>
+        <div class="ui-block">
+          <details id="statusTab" class="ui-status-tab">
+            <summary>Status</summary>
+            <div class="ui-status">
+              <div class="ui-status-row">
+                <div class="ui-label">Status</div>
+                <div id="statusValue">LOADING_MODEL</div>
+              </div>
+              <div class="ui-status-row">
+                <div class="ui-label">Detail</div>
+                <div id="detailValue"></div>
+              </div>
+              <div class="ui-status-row">
+                <div class="ui-label">Progress</div>
+                <div id="progressValue"></div>
+              </div>
+            </div>
+          </details>
         </div>
         <div class="ui-block">
           <div class="ui-label">Parameters</div>

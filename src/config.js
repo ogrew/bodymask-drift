@@ -35,7 +35,7 @@ const BUILD_CELLS_PER_FRAME = 4000;
 const SAMPLE_MANIFEST_URL = "assets/samples/manifest.json";
 const DEFAULT_SAMPLE_PATH = "assets/samples/t1.jpg";
 
-const PARAMS = {
+const PARAM_DEFAULTS = {
   imgSource: "sample",
   imgPath: DEFAULT_SAMPLE_PATH,
 
@@ -56,6 +56,8 @@ const PARAMS = {
   noiseSeed: Math.floor(Math.random() * 100000) + 1,
   wrapEdges: true,
 };
+
+const PARAMS = { ...PARAM_DEFAULTS };
 
 
 // Runペインの表示用（readonly）
