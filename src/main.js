@@ -3,6 +3,16 @@
 // ============================================================
 
 function preload() {
+  try {
+    const manifest = loadJSON(SAMPLE_MANIFEST_URL);
+    const samples = manifest?.samples;
+    if (Array.isArray(samples) && samples.length) {
+      const pick = samples[Math.floor(Math.random() * samples.length)];
+      if (pick?.file) {
+        PARAMS.imgPath = pick.file;
+      }
+    }
+  } catch (_) {}
   // 初期表示用にデフォルト画像だけ読み込む（選択変更はPLAY時にロード）
   img = loadImage(PARAMS.imgPath);
 }

@@ -39,7 +39,7 @@ const PARAMS = {
   imgSource: "sample",
   imgPath: DEFAULT_SAMPLE_PATH,
 
-  cellSize: 10,
+  cellSize: 6,
   tileShape: "rect",
   moveFrames: 180,
   maxSpeed: 2.8,
@@ -53,7 +53,7 @@ const PARAMS = {
 
   tileAlpha: 1.0,
 
-  noiseSeed: 37452,
+  noiseSeed: Math.floor(Math.random() * 100000) + 1,
   wrapEdges: true,
 };
 
