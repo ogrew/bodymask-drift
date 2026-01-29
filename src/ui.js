@@ -468,11 +468,17 @@ function initLayoutUI() {
       return;
     }
     if (event.metaKey || event.ctrlKey || event.altKey) return;
-    if (event.key.toLowerCase() !== "p") return;
+    const key = event.key.toLowerCase();
+    if (key !== "p" && key !== "s") return;
     event.preventDefault();
-    const isCollapsed = ui.classList.toggle("is-collapsed");
-    if (toggleButton) {
-      toggleButton.textContent = isCollapsed ? "Show Panel" : "Hide Panel";
+    if (key === "p") {
+      const isCollapsed = ui.classList.toggle("is-collapsed");
+      if (toggleButton) {
+        toggleButton.textContent = isCollapsed ? "Show Panel" : "Hide Panel";
+      }
+    }
+    if (key === "s") {
+      saveCurrentCanvas();
     }
   });
 
