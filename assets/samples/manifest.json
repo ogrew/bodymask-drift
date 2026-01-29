@@ -1,0 +1,28 @@
+{
+  "samples": [
+    {
+      "label": "t0.jpg",
+      "file": "assets/samples/t0.jpg"
+    },
+    {
+      "label": "t1.jpg",
+      "file": "assets/samples/t1.jpg"
+    },
+    {
+      "label": "t2.jpg",
+      "file": "assets/samples/t2.jpg"
+    },
+    {
+      "label": "t3.jpg",
+      "file": "assets/samples/t3.jpg"
+    },
+    {
+      "label": "t4.jpg",
+      "file": "assets/samples/t4.jpg"
+    },
+    {
+      "label": "t5.jpg",
+      "file": "assets/samples/t5.jpg"
+    }
+  ]
+}
