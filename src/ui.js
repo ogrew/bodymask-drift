@@ -34,7 +34,7 @@ function initTweakpane() {
   tiles.addBinding(PARAMS, "cellSize", {
     label: "Cell Size (px)",
     min: 1,
-    max: 50,
+    max: 24,
     step: 1,
   });
 
@@ -65,8 +65,8 @@ function initTweakpane() {
   });
   motion.addBinding(PARAMS, "maxSpeed", {
     label: "Max Speed",
-    min: 1.0,
-    max: 10.0,
+    min: 0.1,
+    max: 5.0,
     step: 0.1,
   });
 
@@ -74,7 +74,7 @@ function initTweakpane() {
   flow.addBinding(PARAMS, "flowFreq", {
     label: "Frequency",
     min: 0.001,
-    max: 0.1,
+    max: 0.2,
     step: 0.001,
   });
   flow.addBinding(PARAMS, "flowTwist", {
@@ -254,7 +254,7 @@ function onStop() {
  * PARAMSの値を正規化してスナップショット化
  */
 function snapshotParams(p) {
-  const cellSize = clampInt(Math.floor(Number(p.cellSize)), 1, 50);
+  const cellSize = clampInt(Math.floor(Number(p.cellSize)), 1, 24);
   const moveFrames = Math.max(1, Math.floor(Number(p.moveFrames) || 1));
   const maxSpeed = Number(p.maxSpeed);
 
@@ -272,7 +272,7 @@ function snapshotParams(p) {
     cellSize,
     tileShape: String(p.tileShape === "circle" ? "circle" : "rect"),
     moveFrames,
-    maxSpeed: Number.isFinite(maxSpeed) ? maxSpeed : 2.8,
+    maxSpeed: Number.isFinite(maxSpeed) ? maxSpeed : 1.6,
     snapToGrid: !!p.snapToGrid,
     applyToPerson: !!p.applyToPerson,
 
